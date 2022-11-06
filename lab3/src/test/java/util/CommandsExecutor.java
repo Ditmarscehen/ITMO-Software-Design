@@ -1,5 +1,7 @@
 package util;
 
+import ru.akirakozov.sd.refactoring.model.Product;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -20,7 +22,7 @@ public class CommandsExecutor {
     }
 
     public void addProduct(Product product) {
-        executeCommand(String.format("add-product?name=%s&price=%s", product.getName(), product.getPrice()));
+        executeCommand(String.format("add-product?name=%s&price=%s", product.name(), product.price()));
     }
 
     public List<Product> getProducts() {

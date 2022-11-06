@@ -1,8 +1,10 @@
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import util.CommandsExecutor;
+import ru.akirakozov.sd.refactoring.db.query.*;
+import ru.akirakozov.sd.refactoring.db.update.AddProductUpdate;
 import ru.akirakozov.sd.refactoring.model.Product;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -12,34 +14,30 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IntegrationTest {
-    private final static String HOST = "localhost";
-    private final static int PORT = 8081;
-    CommandsExecutor commandsExecutor = new CommandsExecutor(HOST, PORT);
-
+public class DbTest {
     @Test
     @Order(1)
-    public void addProductTest() {
-        int prevSize = commandsExecutor.getProducts().size();
+    public void addProductTest() throws SQLException {
+        int prevSize = GetProductsQuery.createAndExecute().size();
         List<Product> addedProducts = addProducts(3);
-        List<Product> products = commandsExecutor.getProducts();
+        List<Product> products = GetProductsQuery.createAndExecute();
         assertThat(products).containsAll(addedProducts);
         assertThat(prevSize).isEqualTo(products.size() - addedProducts.size());
     }
 
     @Test
     @Order(2)
-    public void testCount() {
-        int count = commandsExecutor.getCount();
-        int size = commandsExecutor.getProducts().size();
+    public void testCount() throws SQLException {
+        int count = CountQuery.createAndExecute();
+        int size = GetProductsQuery.createAndExecute().size();
         assertThat(count).isEqualTo(size);
     }
 
     @Test
     @Order(2)
-    public void testMin() {
-        Optional<Product> expectedMin = commandsExecutor.getProducts().stream().min(Comparator.comparing(Product::price));
-        Product actualMin = commandsExecutor.getMin();
+    public void testMin() throws SQLException {
+        Optional<Product> expectedMin = GetProductsQuery.createAndExecute().stream().min(Comparator.comparing(Product::price));
+        Product actualMin = MinQuery.createAndExecute();
         if (expectedMin.isPresent()) {
             assertThat(expectedMin.get()).isEqualTo(actualMin);
         } else {
@@ -49,9 +47,9 @@ public class IntegrationTest {
 
     @Test
     @Order(3)
-    public void testMax() {
-        Optional<Product> expectedMax = commandsExecutor.getProducts().stream().max(Comparator.comparing(Product::price));
-        Product actualMax = commandsExecutor.getMax();
+    public void testMax() throws SQLException {
+        Optional<Product> expectedMax = GetProductsQuery.createAndExecute().stream().max(Comparator.comparing(Product::price));
+        Product actualMax = MaxQuery.createAndExecute();
         if (expectedMax.isPresent()) {
             assertThat(expectedMax.get()).isEqualTo(actualMax);
         } else {
@@ -61,11 +59,11 @@ public class IntegrationTest {
 
     @Test
     @Order(4)
-    public void testSum() {
-        Optional<Integer> expectedSum = commandsExecutor.getProducts().stream()
+    public void testSum() throws SQLException {
+        Optional<Integer> expectedSum = GetProductsQuery.createAndExecute().stream()
                 .map(Product::price)
                 .reduce(Integer::sum);
-        Integer actualSum = commandsExecutor.getSum();
+        Integer actualSum = SumQuery.createAndExecute();
         if (expectedSum.isPresent()) {
             assertThat(expectedSum.get()).isEqualTo(actualSum);
         } else {
@@ -78,11 +76,14 @@ public class IntegrationTest {
         return String.valueOf(Instant.now().getNano());
     }
 
-    private List<Product> addProducts(int n) {
+    private List<Product> addProducts(int n) throws SQLException {
         List<Product> products = IntStream.range(1, n + 1)
                 .mapToObj(i -> new Product(generateProductName(), i * 10))
                 .collect(Collectors.toList());
-        products.forEach(commandsExecutor::addProduct);
+        for (Product product : products) {
+            AddProductUpdate update = new AddProductUpdate(product);
+            update.executeUpdate();
+        }
         return products;
     }
 }
