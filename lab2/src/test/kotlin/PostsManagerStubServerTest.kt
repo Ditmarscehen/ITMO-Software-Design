@@ -33,7 +33,7 @@ class PostsManagerStubServerTest {
                 .match(method(Method.GET), startsWithUri("/newsfeed.search"))
                 .then(stringContent(responseJson))
 
-            val result = vkPostsClient.getPostsCount("top", 12)
+            val result = vkPostsClient.getPostsCount("top", 11, 12)
             Assert.assertEquals(response.totalCount, result)
         }
     }

@@ -15,7 +15,7 @@ class PostsManagerMockTest {
 
     companion object {
         private const val DEFAULT_HASHTAG = "#top"
-        private const val DEFAULT_TIME = 10
+        private const val DEFAULT_TIME = 1
     }
 
     @Before
@@ -28,8 +28,18 @@ class PostsManagerMockTest {
     fun getPostsCount() {
         val expectedValue = 1
 
-        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, DEFAULT_TIME)).thenReturn(expectedValue)
-        assertThat(postsManager.getPostsCount(DEFAULT_HASHTAG, DEFAULT_TIME)).isEqualTo(expectedValue)
+        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, DEFAULT_TIME, DEFAULT_TIME - 1)).thenReturn(expectedValue)
+        assertThat(postsManager.getPostsCount(DEFAULT_HASHTAG, DEFAULT_TIME)).isEqualTo(listOf(expectedValue))
+    }
+
+    @Test
+    fun getSeveralPostsCount() {
+        val expectedValues = listOf(1, 2, 3, 4)
+        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, 4, 3)).thenReturn(1)
+        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, 3, 2)).thenReturn(2)
+        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, 2, 1)).thenReturn(3)
+        whenever(postClient.getPostsCount(DEFAULT_HASHTAG, 1, 0)).thenReturn(4)
+        assertThat(postsManager.getPostsCount(DEFAULT_HASHTAG, 4)).isEqualTo(expectedValues)
     }
 
     @Test

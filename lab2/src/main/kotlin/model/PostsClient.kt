@@ -1,5 +1,5 @@
 package model
 
 interface PostsClient {
-    fun getPostsCount(searchRequest: String, time: Int): Int
+    fun getPostsCount(searchRequest: String, startTime: Int, endTime: Int): Int
 }

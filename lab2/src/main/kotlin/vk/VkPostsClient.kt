@@ -10,7 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import model.PostsClient
-import utils.TimeUtils.Companion.calculateStartTime
+import utils.TimeUtils.Companion.calculateTimeBefore
 
 
 class VkPostsClient(private val host: String, private val port: Int) : PostsClient {
@@ -29,12 +29,13 @@ class VkPostsClient(private val host: String, private val port: Int) : PostsClie
         }
     }
 
-    override fun getPostsCount(searchRequest: String, time: Int): Int {
-        val startTime = calculateStartTime(time)
-        
+    override fun getPostsCount(searchRequest: String, startTime: Int, endTime: Int): Int {
+        val actualStartTime = calculateTimeBefore(startTime)
+        val actualEndTime = calculateTimeBefore(endTime)
+
         val postsCount: Int =
             runBlocking {
-                val response = client.get(PostsRequest(searchRequest, startTime))
+                val response = client.get(PostsRequest(searchRequest, actualStartTime, actualEndTime))
                 val postsResponse = Json.decodeFromString(PostsResponse.serializer(), response.bodyAsText())
                 postsResponse.totalCount
             }

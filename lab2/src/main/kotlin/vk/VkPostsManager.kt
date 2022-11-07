@@ -4,11 +4,13 @@ import model.PostsClient
 import model.PostsManager
 
 class VkPostsManager(private val postsClient: PostsClient) : PostsManager {
-    override fun getPostsCount(hashtag: String, time: Int): Int {
+    override fun getPostsCount(hashtag: String, time: Int): List<Int> {
         validateArgs(hashtag, time)
 
         try {
-            return postsClient.getPostsCount(hashtag, time)
+            return (time downTo 1)
+                .map { postsClient.getPostsCount(hashtag, it, it - 1) }
+
         } catch (e: Exception) {
             throw RuntimeException("Failed to get posts count: ${e.message}")
         }
