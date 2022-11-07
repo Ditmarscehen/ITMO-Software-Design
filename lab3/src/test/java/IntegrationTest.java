@@ -36,7 +36,7 @@ public class IntegrationTest {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     public void testMin() {
         Optional<Product> expectedMin = commandsExecutor.getProducts().stream().min(Comparator.comparing(Product::price));
         Product actualMin = commandsExecutor.getMin();
@@ -48,7 +48,7 @@ public class IntegrationTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testMax() {
         Optional<Product> expectedMax = commandsExecutor.getProducts().stream().max(Comparator.comparing(Product::price));
         Product actualMax = commandsExecutor.getMax();
@@ -60,7 +60,7 @@ public class IntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void testSum() {
         Optional<Integer> expectedSum = commandsExecutor.getProducts().stream()
                 .map(Product::price)
