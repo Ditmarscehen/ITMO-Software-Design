@@ -1,0 +1,1 @@
+run `Main.java` before running tests
